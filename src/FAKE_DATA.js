@@ -8,17 +8,17 @@ export const FAKE_APPS = [
     {
         id: 1,
         name: "Gmail",
-        categoryId: 0
+        categoryId: 2
     },
     {
         id: 2,
         name: "Facebook",
-        categoryId: 1
+        categoryId: 0
     },
     {
         id: 3,
         name: "Splashy Toons",
-        categoryId: 2
+        categoryId: 1
     },
     {
         id: 4,
@@ -30,7 +30,7 @@ export const FAKE_APPS = [
 export const FAKE_CATEGORIES = [
     {
         id: 0,
-        name: "Health"
+        name: "Social Media"
     },
     {
         id: 1,
