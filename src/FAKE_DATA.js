@@ -27,7 +27,7 @@ export const FAKE_APPS = [
     }
 ]
 
-export const FAKE_CATEGORIES = [
+export const CATEGORIES = [
     {
         id: 0,
         name: "Social Media"

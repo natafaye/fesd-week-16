@@ -1,46 +1,42 @@
 import React, { useState } from 'react'
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
-import AllEntries from './AllEntries'
-import EntriesInCategory from './EntriesInCategory'
-import NewEntryForm from './NewEntryForm'
-import Sidebar from './Sidebar'
+import { Col, Container, Row } from 'react-bootstrap'
+import { Route, Routes, useNavigate } from 'react-router-dom'
+import AllAppsPage from './AllAppsPage'
+import AppCategoryPage from './AppCategoryPage'
+import AppPage from './AppPage'
+import { FAKE_APPS } from './FAKE_DATA'
+import HomePage from './HomePage'
+import NewAppForm from './NewAppForm'
+import TopNavbar from './TopNavbar'
 
 export default function App() {
-    const [entryList, setEntryList] = useState([
-        {
-            id: 0,
-            description: "The greatest day!",
-            mood: 2
-        },
-        {
-            id: 1,
-            description: "The greatest day!",
-            mood: 4
-        }
-    ])
+    const [appList, setAppList] = useState(FAKE_APPS);
+    const navigate = useNavigate()
 
-    const navigate = useNavigate();
+    const createApp = (newAppData) => {
+        const newApp = { ...newAppData, id: appList[appList.length - 1].id + 1 } // lil hack to get a unique id
+        setAppList([...appList, newApp]);
 
-    const addEntry = (newEntry) => {
-        newEntry = { ...newEntry, id: entryList[entryList.length - 1].id + 1 } // little hack
-        setEntryList([...entryList, newEntry])
-        navigate("/")
+        // Navigate to the page for the app we just made
+        navigate("/apps/" + newApp.id)
     }
 
     return (
-        <div className="container">
-            <div className="row">
-                <div className="col-4">
-                    <Sidebar />
-                </div>
-                <div className="col">
-                    <Routes>
-                        <Route path="entries/new" element={<NewEntryForm onSubmit={addEntry}/>} />
-                        <Route path="/" element={<AllEntries entryList={entryList}/>} />
-                        <Route path="entries/:category" element={<EntriesInCategory entryList={entryList} />} />
-                    </Routes>
-                </div>
-            </div>
-        </div>
+        <>
+            <TopNavbar />
+            <Container>
+                <Row>
+                    <Col>
+                        <Routes>
+                            <Route path="/" element={<HomePage />} />
+                            <Route path="/apps" element={<AllAppsPage appList={appList} />} />
+                            <Route path="/apps/:appId" element={<AppPage appList={appList} />} />
+                            <Route path="/apps/category/:categoryId" element={<AppCategoryPage appList={appList} />} />
+                            <Route path='/apps/new' element={<NewAppForm onSubmit={createApp}/>}/>
+                        </Routes>
+                    </Col>
+                </Row>
+            </Container>
+        </>
     )
 }
