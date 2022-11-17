@@ -1,42 +1,45 @@
 import React, { useState } from 'react'
-import { Col, Container, Row } from 'react-bootstrap'
-import { Route, Routes, useNavigate } from 'react-router-dom'
-import AllAppsPage from './AllAppsPage'
-import AppCategoryPage from './AppCategoryPage'
-import AppPage from './AppPage'
-import { FAKE_APPS } from './FAKE_DATA'
+import { Container, Nav, Navbar } from 'react-bootstrap'
+import { NavLink, Link, Route, Routes, useNavigate } from 'react-router-dom'
 import HomePage from './HomePage'
-import NewAppForm from './NewAppForm'
-import TopNavbar from './TopNavbar'
+import NewNotePage from './NewNotePage'
+import NotePage from './NotePage'
+import {v4 as uuid } from 'uuid'
 
 export default function App() {
-    const [appList, setAppList] = useState(FAKE_APPS);
-    const navigate = useNavigate()
+    const [noteList, setNoteList] = useState([])
 
-    const createApp = (newAppData) => {
-        const newApp = { ...newAppData, id: appList[appList.length - 1].id + 1 } // lil hack to get a unique id
-        setAppList([...appList, newApp]);
+    const navigate = useNavigate();
 
-        // Navigate to the page for the app we just made
-        navigate("/apps/" + newApp.id)
+    const addNote = (newNoteText) => {
+        const newNote = {
+            id: uuid(), // UUID library makes a unique id for me
+            text: newNoteText
+        }
+
+        setNoteList(noteList.concat(newNote));
+        
+        navigate("/note/" + newNote.id)
     }
 
     return (
-        <>
-            <TopNavbar />
-            <Container>
-                <Row>
-                    <Col>
-                        <Routes>
-                            <Route path="/" element={<HomePage />} />
-                            <Route path="/apps" element={<AllAppsPage appList={appList} />} />
-                            <Route path="/apps/:appId" element={<AppPage appList={appList} />} />
-                            <Route path="/apps/category/:categoryId" element={<AppCategoryPage appList={appList} />} />
-                            <Route path='/apps/new' element={<NewAppForm onSubmit={createApp}/>}/>
-                        </Routes>
-                    </Col>
-                </Row>
-            </Container>
-        </>
+        <div>
+            <Navbar bg="primary" variant="dark">
+                <Container fluid>
+                    <Navbar.Brand as={Link} to="/">Note App</Navbar.Brand>
+                    <Nav className="me-auto">
+                        <Nav.Link as={NavLink} to="/">Home</Nav.Link>
+                        <Nav.Link as={NavLink} to="/note/new">New Note</Nav.Link>
+                    </Nav>
+                </Container>
+            </Navbar>
+            <div className="p-3">
+                <Routes>
+                    <Route path="note/:noteId" element={<NotePage noteList={noteList} />} />
+                    <Route path="note/new" element={<NewNotePage onSubmit={addNote} />} />
+                    <Route path="/" element={<HomePage noteList={noteList}/>} />
+                </Routes>
+            </div>
+        </div>
     )
 }

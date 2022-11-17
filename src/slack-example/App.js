@@ -1,22 +1,77 @@
-import React from 'react'
-import { Alert, Container, Nav, Navbar } from 'react-bootstrap'
-import { Route, Routes } from 'react-router-dom'
-import ChannelPage from './ChannelPage'
-import Sidebar from './Sidebar'
+import { Alert, Col, Container, Nav, Navbar, Row } from 'react-bootstrap'
+import React, { useState } from 'react'
+import { Link, NavLink, Route, Routes } from 'react-router-dom'
 import ThreadsPage from './ThreadsPage'
-import TopHeader from './TopHeader'
+import HomePage from './HomePage'
+import Sidebar from './Sidebar'
+import ChannelPage from './ChannelPage'
+
+const TEST_CHANNELS = [
+  {
+    id: 0,
+    name: "random"
+  },
+  {
+    id: 1,
+    name: "general"
+  },
+  {
+    id: 2,
+    name: "react"
+  }
+]
+
+const TEST_POSTS = [
+  {
+    id: 0,
+    channelId: 0,
+    text: "Hey there!"
+  },
+  {
+    id: 1,
+    channelId: 0,
+    text: "I'm doing good!"
+  },
+  {
+    id: 2,
+    channelId: 2,
+    text: "I love React"
+  },
+]
+
+// path = "localhost:3000"
 
 export default function App() {
-    return (
-        <>
-            <TopHeader/>
-            <Sidebar/>
+  const [channelList, setChannelList] = useState(TEST_CHANNELS)
+  const [postList, setPostList] = useState(TEST_POSTS)
+
+  return (
+    <div>
+      <Navbar bg="dark" variant="dark">
+        <Container>
+          <Navbar.Brand as={Link} to="/">Slack</Navbar.Brand>
+          <Nav className="me-auto">
+            <Nav.Link as={NavLink} to="/">Home</Nav.Link>
+            <Nav.Link as={NavLink} to="/threads">Threads</Nav.Link>
+          </Nav>
+        </Container>
+      </Navbar>
+      <Container>
+        <Row>
+          <div className="col-4">
+            <Sidebar channelList={channelList}/>
+          </div>
+          <Col>
             <Routes>
-                <Route path="/threads" element={<ThreadsPage/>}/>
-                <Route path="/channels/:channelId" element={<ChannelPage/>}/>
+              <Route path="/" element={<HomePage />} />
+              <Route path="threads" element={<ThreadsPage />} />
+              <Route path="/channel/:channelId" element={<ChannelPage channelList={channelList} postList={postList}/>}/>
             </Routes>
-        </>
-    )
+          </Col>
+        </Row>
+      </Container>
+    </div>
+  )
 }
 
 
@@ -27,36 +82,16 @@ export default function App() {
 
 
 
+{/* <div role="alert" className="alert alert-primary">
+        This is an alert
+      </div>
+      <Alert variant="primary">
+        This is a React Bootstrap alert
+      </Alert> */}
+
+// ESSENTIALLY WHAT THE ALERT COMPONENT LOOKS LIKE
 // function Alert({ variant }) {
-//     return (
-//         <div className={"alert alert-" + variant}>
-
-//         </div>
-//     )
+//   return (
+//     <div className={"alert alert-" + variant}></div>
+//   )
 // }
-
-
-            // <Navbar bg="dark" variant="dark" expand="lg">
-            //     <Container>
-            //         <Navbar.Brand href="#home">Navbar</Navbar.Brand>
-            //         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-            //         <Navbar.Collapse id="responsive-navbar-nav">
-            //             <Nav className="me-auto">
-            //                 <Nav.Link href="#home">Home</Nav.Link>
-            //                 <Nav.Link href="#features">Features</Nav.Link>
-            //                 <Nav.Link href="#pricing">Pricing</Nav.Link>
-            //             </Nav>
-            //         </Navbar.Collapse>
-            //     </Container>
-            // </Navbar>
-            // <div className="card">
-            //     <div className="card-body">
-            //         <div className="card-title">Something</div>
-            //     </div>
-            // </div>
-            // <div className="alert alert-warning mt-3">
-            //     WARNING
-            // </div>
-            // <Alert variant="warning" className="mt-3">
-            //     WARNING
-            // </Alert>

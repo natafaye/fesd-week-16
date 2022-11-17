@@ -1,12 +1,16 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 
-export default function Sidebar() {
+export default function Sidebar({ channelList }) {
   return (
-    <div>
-        <h2>Sidebar</h2>
-        <Link to="/channels/DFVDSERE">#general</Link>
-        <Link to="/channels/3fdsf3fds">#random</Link>
+    <div className="bg-light p-3">
+        <ul className="list-group">
+            { channelList.map(channel => (
+                <li className="list-group-item" key={channel.id}>
+                    <Link to={"/channel/" + channel.id}>#{ channel.name }</Link>
+                </li>
+            ))}
+        </ul>
     </div>
   )
 }
