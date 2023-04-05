@@ -1,45 +1,37 @@
 import React, { useState } from 'react'
-import { Container, Nav, Navbar } from 'react-bootstrap'
-import { NavLink, Link, Route, Routes, useNavigate } from 'react-router-dom'
-import HomePage from './HomePage'
-import NewNotePage from './NewNotePage'
-import NotePage from './NotePage'
-import {v4 as uuid } from 'uuid'
+import ShoppingPage from './components/ShoppingPage'
+import ProductPage from './components/ProductPage'
+import CartPage from './components/CartPage'
+import { Link, Route, Routes, useNavigate } from 'react-router-dom'
+import { TEST_PRODUCTS } from './PRODUCTS'
 
 export default function App() {
-    const [noteList, setNoteList] = useState([])
+    const [productList, setProductList] = useState( TEST_PRODUCTS )
+    const [cart, setCart] = useState([{
+        id: 0,
+        name: "Shoes"
+    }])
 
-    const navigate = useNavigate();
+    const navigate = useNavigate()
 
-    const addNote = (newNoteText) => {
-        const newNote = {
-            id: uuid(), // UUID library makes a unique id for me
-            text: newNoteText
-        }
-
-        setNoteList(noteList.concat(newNote));
-        
-        navigate("/note/" + newNote.id)
+    const addToCart = (product) => {
+        const newCartItem = { ...product } // because we are crappy
+        setCart( cart.concat(newCartItem) )
+        navigate("/cart")
     }
 
     return (
         <div>
-            <Navbar bg="primary" variant="dark">
-                <Container fluid>
-                    <Navbar.Brand as={Link} to="/">Note App</Navbar.Brand>
-                    <Nav className="me-auto">
-                        <Nav.Link as={NavLink} to="/">Home</Nav.Link>
-                        <Nav.Link as={NavLink} to="/note/new">New Note</Nav.Link>
-                    </Nav>
-                </Container>
-            </Navbar>
-            <div className="p-3">
-                <Routes>
-                    <Route path="note/:noteId" element={<NotePage noteList={noteList} />} />
-                    <Route path="note/new" element={<NewNotePage onSubmit={addNote} />} />
-                    <Route path="/" element={<HomePage noteList={noteList}/>} />
-                </Routes>
-            </div>
+            <h1>Shopping App</h1>
+            <Link to="/cart">Cart</Link>
+            <Link to="/">Shop</Link>
+            <Routes>
+                <Route path="/" element={<ShoppingPage productList={productList} />}/>
+                <Route path="/:productId" element={<ProductPage productList={productList} addToCart={addToCart} />}/>
+                <Route path="/cart" element={<CartPage cart={cart} />}/>
+            </Routes>
         </div>
     )
 }
+
+

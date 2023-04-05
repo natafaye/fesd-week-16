@@ -1,4 +1,4 @@
-import { Alert, Col, Container, Nav, Navbar, Row } from 'react-bootstrap'
+import { Col, Container, Nav, Navbar, Row } from 'react-bootstrap'
 import React, { useState } from 'react'
 import { Link, NavLink, Route, Routes } from 'react-router-dom'
 import ThreadsPage from './ThreadsPage'
