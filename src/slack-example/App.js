@@ -62,9 +62,10 @@ export default function App() {
             <Sidebar channelList={channelList}/>
           </div>
           <Col>
+            <NavLink to="/threads">Click Me</NavLink>
             <Routes>
               <Route path="/" element={<HomePage />} />
-              <Route path="threads" element={<ThreadsPage />} />
+              <Route path="/threads" element={<ThreadsPage />} />
               <Route path="/channel/:channelId" element={<ChannelPage channelList={channelList} postList={postList}/>}/>
             </Routes>
           </Col>
@@ -74,24 +75,3 @@ export default function App() {
   )
 }
 
-
-
-
-
-
-
-
-
-{/* <div role="alert" className="alert alert-primary">
-        This is an alert
-      </div>
-      <Alert variant="primary">
-        This is a React Bootstrap alert
-      </Alert> */}
-
-// ESSENTIALLY WHAT THE ALERT COMPONENT LOOKS LIKE
-// function Alert({ variant }) {
-//   return (
-//     <div className={"alert alert-" + variant}></div>
-//   )
-// }

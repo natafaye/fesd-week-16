@@ -6,10 +6,14 @@ export default function ChannelPage({ channelList, postList }) {
     // const params = useParams();
     // const channelId = parseInt(params.channelId)
     let { channelId } = useParams();
-    channelId = parseInt(channelId);
+    channelId = parseInt(channelId); // turning it from a string to a number NaN
 
     const channel = channelList.find(c => c.id === channelId)
     const posts = postList.filter(p => p.channelId === channelId)
+
+    if(!channel) {
+        return <div>No channel found with that id</div>
+    }
 
     return (
         <div>

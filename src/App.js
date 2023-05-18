@@ -1,37 +1,47 @@
 import React, { useState } from 'react'
-import ShoppingPage from './components/ShoppingPage'
-import ProductPage from './components/ProductPage'
-import CartPage from './components/CartPage'
-import { Link, Route, Routes, useNavigate } from 'react-router-dom'
-import { TEST_PRODUCTS } from './PRODUCTS'
+import { TEST_FOOD } from './TEST_FOOD'
+import { Route, Routes } from 'react-router-dom'
+import HomePage from './components/HomePage'
+import ShopPage from './components/ShopPage'
+import FoodDetailsPage from './components/FoodDetailsPage'
+import TopBar from './components/TopBar'
+import { Container } from 'react-bootstrap'
+
+let nextId = 10 // hack to get unique ids
 
 export default function App() {
-    const [productList, setProductList] = useState( TEST_PRODUCTS )
-    const [cart, setCart] = useState([{
-        id: 0,
-        name: "Shoes"
-    }])
+  const [foodList, setFoodList] = useState(TEST_FOOD)
 
-    const navigate = useNavigate()
-
-    const addToCart = (product) => {
-        const newCartItem = { ...product } // because we are crappy
-        setCart( cart.concat(newCartItem) )
-        navigate("/cart")
+  const addFood = (newFoodData) => {
+    const newFood = {
+      ...newFoodData,
+      id: nextId++
     }
+    setFoodList(foodList.concat(newFood))
+  }
 
-    return (
-        <div>
-            <h1>Shopping App</h1>
-            <Link to="/cart">Cart</Link>
-            <Link to="/">Shop</Link>
-            <Routes>
-                <Route path="/" element={<ShoppingPage productList={productList} />}/>
-                <Route path="/:productId" element={<ProductPage productList={productList} addToCart={addToCart} />}/>
-                <Route path="/cart" element={<CartPage cart={cart} />}/>
-            </Routes>
-        </div>
-    )
+  const updateFood = (updatedFoodData) => {
+    setFoodList(foodList.map(food => 
+      food.id === updatedFoodData.id ? 
+      { ...food, ...updatedFoodData }
+      : food
+    ))
+  }
+
+  const deleteFood = (idToDelete) => {
+    setFoodList(foodList.filter(food => food.id === idToDelete))
+  }
+
+  return (
+    <div>
+      <TopBar/>
+      <Container>
+        <Routes>
+          <Route path="/" element={<HomePage foodList={foodList}/>}/>
+          <Route path="/shop" element={<ShopPage foodList={foodList} updateFood={updateFood} />}/>
+          <Route path="/food/:foodId" element={<FoodDetailsPage foodList={foodList} />}/>
+        </Routes>
+      </Container>
+    </div>
+  )
 }
-
-
