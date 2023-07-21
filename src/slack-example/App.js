@@ -62,7 +62,6 @@ export default function App() {
             <Sidebar channelList={channelList}/>
           </div>
           <Col>
-            <NavLink to="/threads">Click Me</NavLink>
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/threads" element={<ThreadsPage />} />
