@@ -1,66 +1,71 @@
+import { Route, Routes } from "react-router-dom";
+import DepartmentPage from "./pages/DepartmentPage";
+import Header from "./components/Header";
+import ShoppingCartPage from "./pages/ShoppingCartPage";
+import ProductDetailsPage from "./pages/ProductDetailsPage";
+import HomePage from "./pages/HomePage";
+import NotFound from "./pages/NotFound";
 import { Container } from "react-bootstrap";
-import { Route, Routes, useNavigate } from "react-router-dom";
-import ProductDetailPage from "./components/ProductDetailPage";
-import CartPage from "./components/CartPage";
-import HomePage from "./components/HomePage";
 import { useEffect, useState } from "react";
-import { v4 as uuid } from "uuid"
-import AddProductPage from "./components/AddProductPage";
-import Header from "./Header";
-import { ThemeContext } from "./components/ThemeContext";
+import ProductForm from "./pages/ProductForm";
+import EditProductPage from "./pages/EditProductPage";
+import AddProductPage from "./pages/AddProductPage";
 
 export default function App() {
   const [productList, setProductList] = useState([])
-  const [loadingProducts, setLoadingProducts] = useState(true)
-  const [cartList, setCartList] = useState([])
-  const [theme, setTheme] = useState("dark")
-
-  const navigate = useNavigate()
-
-  const addToCart = (productId) => {
-    const cartItem = {
-      id: uuid(), // another option to generate ids
-      productId: productId,
-      quantity: 1
-    }
-    setCartList([...cartList, cartItem])
-    navigate("/cart")
-  }
-
-  const addProduct = async (newProductData) => {
-    const response = await fetch("http://localhost:3004/products", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newProductData)
-    })
-    const newProductWithId = await response.json()
-    setProductList([...productList, newProductWithId])
-  }
+  const [loading, setLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoadingProducts(true)
-      const response = await fetch("http://localhost:3004/products")
+    async function fetchProduct() {
+      setLoading(true)
+      const response = await fetch("http://localhost:3005/products")
+      if(!response.ok) {
+        setProductList(null)
+        setErrorMessage(response.statusText)
+        setLoading(false)
+        return
+      }
       const data = await response.json()
       setProductList(data)
-      setLoadingProducts(false)
+      setErrorMessage(null)
+      setLoading(false)
     }
-    fetchData()
+    fetchProduct()
   }, [])
 
+  const addProduct = (newProductData) => {
+    setLoading(true)
+    // add on the backend
+
+    setLoading(false)
+    // add on the frontend
+  }
+
+  const updateProduct = (updatedProductData) => {
+    setLoading(true)
+    // add on the backend
+
+    setLoading(false)
+    // add on the frontend
+  }
+
   return (
-    <ThemeContext.Provider value={[theme, setTheme]}>
-      <Header />
-      <Container>
-        {loadingProducts ? <p>Loading...</p> :
-          <Routes>
-            <Route path="/" element={<HomePage productList={productList} addToCart={addToCart} />} />
-            <Route path="/cart" element={<CartPage productList={productList} cartList={cartList} />} />
-            <Route path="/products/:productId" element={<ProductDetailPage productList={productList} addToCart={addToCart} />} />
-            <Route path="/products/create/new" element={<AddProductPage addProduct={addProduct} />} />
-          </Routes>
-        }
+    <div>
+      <Header/>
+      <Container className="mt-4">
+        { errorMessage ? <div className="text-danger">{errorMessage}</div> : null }
+        { loading ? <div className="text-body-tertiary">Loading...</div> : null }
+        <Routes>
+          <Route path="/" element={<HomePage productList={productList}/>}/>{/* This matches nothing */}
+          <Route path="/department" element={<DepartmentPage/>}/>
+          <Route path="/shopping-cart" element={<ShoppingCartPage/>}/>
+          <Route path="/products/details/:productId" element={<ProductDetailsPage productList={productList} loading={loading}/>}/>
+          <Route path="/products/details/:productId/edit" element={<EditProductPage updateProduct={updateProduct} productList={productList}/>}/>
+          <Route path="/products/new" element={<AddProductPage addProduct={addProduct}/>}/>
+          <Route path="*" element={<NotFound/>}/>{/* This matches everything else */}
+        </Routes>
       </Container>
-    </ThemeContext.Provider>
+    </div>
   )
 }
