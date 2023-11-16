@@ -1,69 +1,61 @@
-import { Route, Routes } from "react-router-dom";
-import DepartmentPage from "./pages/DepartmentPage";
-import Header from "./components/Header";
-import ShoppingCartPage from "./pages/ShoppingCartPage";
-import ProductDetailsPage from "./pages/ProductDetailsPage";
-import HomePage from "./pages/HomePage";
-import NotFound from "./pages/NotFound";
-import { Container } from "react-bootstrap";
+import { Badge, Nav, Navbar, Container } from "react-bootstrap";
+import { Link, NavLink, Route, Routes } from "react-router-dom";
+import TodosPage from "./TodosPage";
+import TagsPage from "./TagsPage";
 import { useEffect, useState } from "react";
-import ProductForm from "./pages/ProductForm";
-import EditProductPage from "./pages/EditProductPage";
-import AddProductPage from "./pages/AddProductPage";
+import TagDetailsPage from "./TagDetailsPage";
 
 export default function App() {
-  const [productList, setProductList] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [errorMessage, setErrorMessage] = useState(null)
+  const [todoList, setTodos] = useState([])
+  const [tagList, setTags] = useState([])
 
   useEffect(() => {
-    async function fetchProduct() {
-      setLoading(true)
-      const response = await fetch("http://localhost:3005/products")
-      if(!response.ok) {
-        setProductList(null)
-        setErrorMessage(response.statusText)
-        setLoading(false)
-        return
-      }
-      const data = await response.json()
-      setProductList(data)
-      setErrorMessage(null)
-      setLoading(false)
+    const fetchTodos = async () => {
+      const response = await fetch("http://localhost:3005/todos")
+      const allTodos = await response.json()
+      setTodos(allTodos)
     }
-    fetchProduct()
-  }, [])
+    const fetchTags = async () => {
+      const response = await fetch("http://localhost:3005/tags")
+      const allTags = await response.json()
+      setTags(allTags)
+    }
+    fetchTodos()
+    fetchTags()
+  }, []) // Don't forget this like a silly goose
 
-  const addProduct = (newProductData) => {
-    setLoading(true)
-    // add on the backend
+  const addTodo = async (newTodoData) => {
+    // Add to the backend
+    const response = await fetch("http://localhost:3005/todos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newTodoData)
+    })
+    const createdTodo = await response.json()
 
-    setLoading(false)
-    // add on the frontend
-  }
-
-  const updateProduct = (updatedProductData) => {
-    setLoading(true)
-    // add on the backend
-
-    setLoading(false)
-    // add on the frontend
+    // Add to the frontend
+    setTodos([...todoList, createdTodo])
   }
 
   return (
     <div>
-      <Header/>
-      <Container className="mt-4">
-        { errorMessage ? <div className="text-danger">{errorMessage}</div> : null }
-        { loading ? <div className="text-body-tertiary">Loading...</div> : null }
+      <Navbar expand="lg" className="bg-body-tertiary">
+        <Container>
+          <Navbar.Brand as={Link} to="/">Todos R Us</Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="me-auto">
+              <Nav.Link as={NavLink} to="/tags">Tags</Nav.Link>
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
+      <Container>
         <Routes>
-          <Route path="/" element={<HomePage productList={productList}/>}/>{/* This matches nothing */}
-          <Route path="/department" element={<DepartmentPage/>}/>
-          <Route path="/shopping-cart" element={<ShoppingCartPage/>}/>
-          <Route path="/products/details/:productId" element={<ProductDetailsPage productList={productList} loading={loading}/>}/>
-          <Route path="/products/details/:productId/edit" element={<EditProductPage updateProduct={updateProduct} productList={productList}/>}/>
-          <Route path="/products/new" element={<AddProductPage addProduct={addProduct}/>}/>
-          <Route path="*" element={<NotFound/>}/>{/* This matches everything else */}
+          <Route path="/" element={<TodosPage todoList={todoList} tagList={tagList} addTodo={addTodo}/>}/>
+          <Route path="/tags" element={<TagsPage tagList={tagList}/>}/>
+          <Route path="/tags/:tagId" element={<TagDetailsPage todoList={todoList} tagList={tagList} />}/>
+          <Route path="*" element={<h1>NOT FOUND</h1>}/> {/* Matches everything else */}
         </Routes>
       </Container>
     </div>
