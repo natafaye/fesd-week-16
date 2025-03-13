@@ -1,7 +1,5 @@
-export type BlogPost = {
-  id: number;
-  category: string;
-  subCategory: string;
-  text: string;
-  private: boolean;
-};
+export type Player = {
+    id: number
+    name: string
+    lowScore: number
+}
