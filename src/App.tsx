@@ -1,86 +1,74 @@
-import { useState } from "react"
-import Board from "./components/Board/Board"
-import Footer from "./components/Footer"
-import LowScoreTable from "./components/LowScoreTable/LowScoreTable"
-import Message from "./components/Message"
-import NameEntry from "./components/NameEntry"
-import { TEST_DATA } from "./testData"
-import { Form } from "react-bootstrap"
-import { Player } from "./types"
+import { useState } from "react";
+import { Container, Table } from "react-bootstrap";
+import { Contact } from "./types";
+import ContactForm from "./ContactForm";
+import { v4 as uuid } from "uuid" // Imports v4 but calls it uuid
 
 export default function App() {
-  const [messageText, setMessageText] = useState("")
-  const [playerList, setPlayerList] = useState(TEST_DATA)
-  const [currentPlayerId, setCurrentPlayerId] = useState<null | number>(null)
-  const [inCheatMode, setInCheatMode] = useState(false)
+    const [contactList, setContactList] = useState<Contact[]>([
+        {
+            id: "fdsfsd",
+            name: "Natalie",
+            phoneNumber: "123-123-1234",
+            preferredContactMethod: "phone"
+        }
+    ])
+    const [showForm, setShowForm] = useState(true)
 
-  const handleStart = (name: string) => {
-    let nextPlayer = playerList.find(playerToCheck => playerToCheck.name === name)
+    // If you need a unique id:
+    // 1) Have the backend do it
+    // 2) Use a library for that
+    // 3) If you kinda don't care that much, just do a random number
 
-    if (nextPlayer === undefined) {
-      nextPlayer = { id: 5, name: name, lowScore: 1000 } // TODO: fix that id at some point
-      setPlayerList([...playerList, nextPlayer])
+    const addContact = (contactData: Omit<Contact, "id">) => {
+        // Longhand
+        // const newContact = {
+        //     id: uuid(),
+        //     name: contactData.name,
+        //     phoneNumber: contactData.phoneNumber,
+        //     preferredContactMethod: contactData.preferredContactMethod
+        // }
+        // Shorthand
+        const newContact = { 
+            id: uuid(), // spits out a string of numbers and letters for the id
+            ...contactData 
+        }
+
+        // BLASPHEMY: React won't know!
+        // contactList.push(newContact)
+
+        //setContactList(a new array with the newContact in it)
+
+        // Verbose
+        // const copy = [...contactList] // Takes the insides of the contactList and puts them in new curly brackets
+        // copy.push(newContact)
+        // setContactList(copy)
+
+        // Streamlined/Professional
+        setContactList([...contactList, newContact])
+
+        console.log(contactList) // This will NOT have the newly added contact
     }
-    setCurrentPlayerId(nextPlayer.id)
-    setMessageText("Welcome " + nextPlayer.name + " Your lowest score so far is " + nextPlayer.lowScore)
-  }
 
-  const updatePlayer = (idToUpdate: number, updatedData: Omit<Player, "id">) => {
-    setPlayerList(playerList.map(player => (
-      player.id !== idToUpdate ? player : {
-        ...player,
-        ...updatedData
-        // name: updatedData.name,
-        // lowScore: updatedData.lowScore
-      }
-    )))
-
-    // const tempPlayerList = [...playerList]
-    // const indexOfPlayer = playerList.findIndex(p => p.id === idToUpdate)
-    // const player = playerList[indexOfPlayer]
-    // const tempPlayer = { ...player}
-    // tempPlayer.name = "Hi"
-    // tempPlayerList[indexOfPlayer] = tempPlayer
-    // setPlayerList(tempPlayerList)
-
-  }
-
-  return (
-    <div className="container">
-      <NameEntry onNameEntered={handleStart} />
-      <Message messageText={messageText} textColor="blue" />
-      <Board />
-      <Form.Check
-        type="switch"
-        label="Cheat Mode"
-        onChange={(event) => setInCheatMode(event.target.checked)}
-        checked={inCheatMode}
-        className="my-3"
-      />
-      <LowScoreTable playerList={playerList} editable={inCheatMode} updatePlayer={updatePlayer} />
-      <Footer />
-    </div>
-  )
+    return (
+        <Container>
+            <h1>Contacts</h1>
+            <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>Show/Hide Form</button>
+            { showForm && <ContactForm onSubmit={addContact}/>}
+            <Table>
+                <thead>
+                    <tr><th>Name</th><th>Phone Number</th><th>Preferred Contact</th></tr>
+                </thead>
+                <tbody>
+                    {contactList.map(contact => (
+                        <tr key={contact.id}>
+                            <td>{contact.name}</td>
+                            <td>{contact.phoneNumber}</td>
+                            <td>{contact.preferredContactMethod}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </Table>
+        </Container>
+    )
 }
-
-
-// Talking after class notes
-
-// listeners change the state
-// mark as important => change the state of that task to have important as true
-
-// render based on the state
-// show a filtered list of important tasks to the side
-// show a sorted list of all tasks with important ones at the top
-// filter to get all the important tasks
-// filter to get all the unimportant tasks
-// concatentate the two together with the important tasks first
-// render based on that concatenated array
-
-// const [array, setArray] = useState([])
-// const sortedArray = fdsfds.concat(fdsfsd)
-// sortedArray.map()
-
-
-// const completedTasks = tasks.filter(t => t.completed)
-// return ( completedTasks.length !== 0 && <div>{ completedTasks.map() }</div> )
