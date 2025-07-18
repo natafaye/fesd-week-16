@@ -1,58 +1,80 @@
-import { Container } from "react-bootstrap";
-import CurrentSchedule from "./components/CurrentSchedule";
-import MakeScheduleForm from "./components/MakeScheduleForm";
-import { useState } from "react";
-
-export type ScheduleDay = {
-  initial: string
-  startTime: number
-  endTime: number
-}
+import { useState } from "react"
+import BigCard from "./BigCard"
+import SmallCard from "./SmallCard"
+import { STARTER_FLASHCARDS } from "./myData"
+import CardForm from "./CardForm"
 
 export default function App() {
-  const [description, setDescription] = useState("Make a 30 minute mentor meeting")
-  const [schedule, setSchedule] = useState([
-    {
-      initial: "M",
-      startTime: 9,
-      endTime: 15
-    },
-    {
-      initial: "T",
-      startTime: 9,
-      endTime: 15
-    },
-    {
-      initial: "W",
-      startTime: 9,
-      endTime: 15
-    },
-    {
-      initial: "Th",
-      startTime: 9,
-      endTime: 15
-    },
-    {
-      initial: "F",
-      startTime: 9,
-      endTime: 15
-    },
-    {
-      initial: "Sa",
-      startTime: 9,
-      endTime: 15
-    },
-    {
-      initial: "Su",
-      startTime: 9,
-      endTime: 15
-    },
-  ])
+  const [flashcards, setFlashcards] = useState(STARTER_FLASHCARDS)
+  const [currentCardIndex, setCurrentCardIndex] = useState(0)
+  const [showOnlyRed, setShowOnlyRed] = useState(false)
+  const [showEdit, setShowEdit] = useState(false)
+  const [editCardId, setEditCardId] = useState<null | number>(null)
+
+  const addCard = () => {
+    const newCard = {
+      id: 3,
+      fruit: "strawberry",
+      color: "red"
+    }
+    setFlashcards([...flashcards, newCard])
+  }
+
+  const removeCard = (idToRemove: number) => {
+    setFlashcards(flashcards.filter(card => card.id !== idToRemove))
+  }
+
+  const startEdit = (idToEdit: number) => {
+    // save the id as the card we're editing
+    setEditCardId(idToEdit)
+    // show the form
+    setShowEdit(true)
+  }
+
+  const saveEdit = (idToEdit: number, editedColor: string) => {
+    setFlashcards(flashcards.map(card => (
+      card.id !== idToEdit ? card : {
+        ...card,
+        color: editedColor
+      }
+    )))
+    setShowEdit(false)
+    setEditCardId(null)
+  }
+
+  const goToNextCard = () => {
+    let nextIndex = currentCardIndex + 1
+    if (nextIndex >= flashcards.length) {
+      nextIndex = 0
+    }
+    setCurrentCardIndex(nextIndex)
+  }
 
   return (
-    <Container className="mt-3">
-      <CurrentSchedule description={description} schedule={schedule} />
-      <MakeScheduleForm setDescription={setDescription} setSchedule={setSchedule}/>
-    </Container>
+    <div className="container">
+      <h1 className="display-1 mt-3 mb-4">Flashcards</h1>
+      <button onClick={addCard}>Add Strawberry</button>
+      { showEdit && <CardForm editCard={flashcards.find(card => card.id === editCardId)} onSubmit={saveEdit}/> }
+      <BigCard
+        card={flashcards[currentCardIndex]}
+        incrementCard={goToNextCard}
+        removeCard={removeCard}
+      />
+      <div className="mt-5">
+        <input
+          type="checkbox"
+          id="red-checkbox"
+          className="form-checkbox"
+          onChange={(event) => setShowOnlyRed(event.target.checked)}
+          checked={showOnlyRed}
+        />
+        <label htmlFor="red-checkbox" className="form-label ms-1">Only Red Please</label>
+      </div>
+      <div className="d-flex gap-3 mt-4">
+        {flashcards.filter(card => !showOnlyRed || card.color === "red").map(card => (
+          <SmallCard card={card} onEdit={startEdit} key={card.id} />
+        ))}
+      </div>
+    </div>
   )
 }
