@@ -1,5 +1,4 @@
 import { useState } from "react"
-import "../node_modules/bootstrap/dist/css/bootstrap.min.css"
 import Conversations from "./Conversations"
 import MessageForm from "./MessageForm"
 import { v4 as uuid } from "uuid"
