@@ -1,58 +1,76 @@
-import { Container } from "react-bootstrap";
-import CurrentSchedule from "./components/CurrentSchedule";
-import MakeScheduleForm from "./components/MakeScheduleForm";
-import { useState } from "react";
-
-export type ScheduleDay = {
-  initial: string
-  startTime: number
-  endTime: number
-}
+import { useState } from "react"
+import "../node_modules/bootstrap/dist/css/bootstrap.min.css"
+import Conversations from "./Conversations"
+import MessageForm from "./MessageForm"
+import { v4 as uuid } from "uuid"
 
 export default function App() {
-  const [description, setDescription] = useState("Make a 30 minute mentor meeting")
-  const [schedule, setSchedule] = useState([
+  const [messages, setMessages] = useState([
     {
-      initial: "M",
-      startTime: 9,
-      endTime: 15
+      text: "I'm doing great",
+      channel: "#general",
+      priority: 1,
+      id: "9",
+      edited: false
     },
     {
-      initial: "T",
-      startTime: 9,
-      endTime: 15
-    },
-    {
-      initial: "W",
-      startTime: 9,
-      endTime: 15
-    },
-    {
-      initial: "Th",
-      startTime: 9,
-      endTime: 15
-    },
-    {
-      initial: "F",
-      startTime: 9,
-      endTime: 15
-    },
-    {
-      initial: "Sa",
-      startTime: 9,
-      endTime: 15
-    },
-    {
-      initial: "Su",
-      startTime: 9,
-      endTime: 15
-    },
+      text: "How's the class going?",
+      channel: "#my-class",
+      priority: 5,
+      id: "10",
+      edited: false
+    }
   ])
+  const [channels, setChannels] = useState(["#general", "#my-class", "#another-channel"])
+  const [currentChannel, setCurrentChannel] = useState("#general")
+
+  const deleteMessage = (idToDelete: string) => {
+    // update the messages array in state to NOT have the message with this id
+    setMessages(messages.filter(message => message.id !== idToDelete))
+  }
+
+  const addMessage = (messageData: { text: string, priority: number }) => {
+    const message = {
+      ...messageData,
+      channel: currentChannel,
+      id: uuid(),
+      edited: false
+    }
+    // One janky option
+    // messages[messages.length - 1].id + 1
+
+    // Common pattern
+    setMessages([...messages, message])
+  }
+
+  const updateMessage = (newText: string) => {
+    // update it
+  }
 
   return (
-    <Container className="mt-3">
-      <CurrentSchedule description={description} schedule={schedule} />
-      <MakeScheduleForm setDescription={setDescription} setSchedule={setSchedule}/>
-    </Container>
+    <div className="container mt-3">
+      <div className="row">
+        <div className="col">
+          <h3>Glack</h3>
+          <p>Number of messages: {messages.length}</p>
+          <div>
+            {channels.map(channelName => (
+              <button
+                key={channelName}
+                className={(channelName === currentChannel) ? "btn btn-success" : "btn btn-light"}
+                onClick={() => setCurrentChannel(channelName)}
+              >
+                {channelName}
+              </button>
+            ))}
+          </div>
+          <MessageForm onSubmit={addMessage}/>
+          <Conversations
+            messageList={messages.filter(message => message.channel === currentChannel)}
+            onDelete={deleteMessage}
+          />
+        </div>
+      </div>
+    </div>
   )
 }
