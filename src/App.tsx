@@ -1,75 +1,80 @@
 import { useState } from "react"
-import Conversations from "./Conversations"
-import MessageForm from "./MessageForm"
-import { v4 as uuid } from "uuid"
+import type { Day, Habit } from "./types"
+import AddHabitButton from "./AddHabitButton"
+import HabitTable from "./HabitTable"
 
 export default function App() {
-  const [messages, setMessages] = useState([
+  const [habitList, setHabitList] = useState<Habit[]>([
     {
-      text: "I'm doing great",
-      channel: "#general",
-      priority: 1,
-      id: "9",
-      edited: false
+      id: 0,
+      streakLength: 4,
+      name: "Exercise",
+      category: "Work",
+      targetStreakLength: 30,
+      monday: false,
+      tuesday: true,
+      wednesday: false,
+      thursday: false,
+      friday: false,
+      saturday: false,
+      sunday: false
     },
     {
-      text: "How's the class going?",
-      channel: "#my-class",
-      priority: 5,
-      id: "10",
-      edited: false
+      id: 1,
+      streakLength: 15,
+      name: "Breakfast",
+      category: "Home",
+      targetStreakLength: 30,
+      monday: true,
+      tuesday: true,
+      wednesday: false,
+      thursday: false,
+      friday: true,
+      saturday: false,
+      sunday: false
     }
   ])
-  const [channels, setChannels] = useState(["#general", "#my-class", "#another-channel"])
-  const [currentChannel, setCurrentChannel] = useState("#general")
 
-  const deleteMessage = (idToDelete: string) => {
-    // update the messages array in state to NOT have the message with this id
-    setMessages(messages.filter(message => message.id !== idToDelete))
+  const addHabit = (newHabit: Habit) => {
+    setHabitList([...habitList, newHabit])
   }
 
-  const addMessage = (messageData: { text: string, priority: number }) => {
-    const message = {
-      ...messageData,
-      channel: currentChannel,
-      id: uuid(),
-      edited: false
-    }
-    // One janky option
-    // messages[messages.length - 1].id + 1
-
-    // Common pattern
-    setMessages([...messages, message])
+  const deleteHabit = (habitIdToDelete: number) => {
+    setHabitList(habitList.filter(habit => habit.id !== habitIdToDelete))
   }
 
-  const updateMessage = (newText: string) => {
-    // update it
+  const updateDay = (habitId: number, day: Day, updatedValue: boolean) => {
+    // Update the matching day property to the value (on a copy)
+    const habitIndex = habitList.findIndex(habit => habit.id === habitId)
+    const habit = habitList[habitIndex]
+    const habitCopy = { ...habit }
+    habitCopy[day] = updatedValue
+    // Put the updated object into the array (a copy)
+    const habitListCopy = [...habitList]
+    habitListCopy[habitIndex] = habitCopy
+    // Set the state to the updated copy of the array
+    setHabitList(habitListCopy)
+
+    // HALFWAY STREAMLINED
+    // const habit2 = habitList.find(habit => habit.id === habitId)!
+    // const habitCopy2 = { 
+    //   ...habit2,
+    //   [day]: updatedValue
+    // }
+    // setHabitList(habitList.map(habit => habit.id !== habitId ? habit : habitCopy2))
+
+    // STREAMLINED BUT CONFUSING
+    // setHabitList(habitList.map(habit => habit.id !== habitId ? habit : {
+    //   ...habit,
+    //   [day]: updatedValue
+    // }))
   }
 
   return (
-    <div className="container mt-3">
-      <div className="row">
-        <div className="col">
-          <h3>Glack</h3>
-          <p>Number of messages: {messages.length}</p>
-          <div>
-            {channels.map(channelName => (
-              <button
-                key={channelName}
-                className={(channelName === currentChannel) ? "btn btn-success" : "btn btn-light"}
-                onClick={() => setCurrentChannel(channelName)}
-              >
-                {channelName}
-              </button>
-            ))}
-          </div>
-          <MessageForm onSubmit={addMessage}/>
-          <Conversations
-            messageList={messages.filter(message => message.channel === currentChannel)}
-            onDelete={deleteMessage}
-          />
-        </div>
-      </div>
+    <div className="container-fluid">
+      <h1>Habit Tracker</h1>
+      <AddHabitButton addHabit={addHabit}/>
+      <HabitTable habitList={habitList} updateDay={updateDay} deleteHabit={deleteHabit}/>
     </div>
   )
 }
